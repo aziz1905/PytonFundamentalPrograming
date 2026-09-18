@@ -2,13 +2,36 @@
 # PROTOTYPE SISTEM MANAJEMEN PERPUSTAKAAN (LIBRARY MANAGEMENT)
 # Versi Peningkatan: Modular (Fungsi, Loop Utama, Validasi Input, & Aturan Streak Hangus)
 # Scope: CONDITIONAL STATEMENTS (if, elif, else, and, or)
+# + FITUR BARU: Auto-Save ke format JSON
 # ========================================================
+
+import json
+import os
 
 # --- KONSTANTA ---
 BATAS_VIP = 7
 MAKS_HARI_PINJAM = 12
 BATAS_HARI_ABSEN_HANGUS = 3  # Batas maksimal hari tidak pinjam sebelum streak hangus
 JAM_RESET_STREAK = "23:59"
+FILE_JSON = "data_perpustakaan.json"  # Nama file database kita
+
+# --- FUNGSI MANAJEMEN JSON (BARU) ---
+def muat_data():
+    """Fungsi untuk membaca data JSON saat program baru dijalankan."""
+    if os.path.exists(FILE_JSON):
+        try:
+            with open(FILE_JSON, 'r') as file:
+                return json.load(file)
+        except json.JSONDecodeError:
+            # Berjaga-jaga jika file JSON kosong atau corrupt
+            return []
+    return []
+
+def simpan_data(data):
+    """Fungsi untuk menyimpan seluruh list transaksi ke dalam JSON."""
+    with open(FILE_JSON, 'w') as file:
+        json.dump(data, file, indent=4)
+    print("\n[INFO] Data transaksi berhasil disimpan secara otomatis ke dalam JSON.")
 
 # --- FUNGSI VALIDASI ---
 # Fungsi ini memastikan user hanya memasukkan angka, mencegah program error (crash)
@@ -82,6 +105,10 @@ def cetak_struk(profil, transaksi, streak):
 
 # --- PROGRAM UTAMA (MAIN LOOP) ---
 def main():
+    # MUAT DATA LAMA SAAT PROGRAM BARU DIBUKA (Langkah 4)
+    semua_transaksi = muat_data()
+    print(f"[SYSTEM] Berhasil memuat {len(semua_transaksi)} data pengunjung dari database.")
+
     while True:
         print("\n========================================================")
         print("             NEXUS LIBRARY & HABIT TRACKER              ")
@@ -119,10 +146,21 @@ def main():
         transaksi = {"judul_buku": judul_buku, "kode_buku": kode_buku, "lama_pinjam": lama_pinjam}
         streak = {"baru": streak_baru, "status": status, "pesan_bonus": pesan_bonus}
 
-        # 5. Tampilkan Output
+        # 5. Gabungkan dan Masukkan Data Baru ke Database List
+        data_pengunjung = {
+            "profil": profil,
+            "transaksi": transaksi,
+            "streak": streak
+        }
+        semua_transaksi.append(data_pengunjung)
+        
+        # SIMPAN PERUBAHAN KE FILE JSON (Langkah 4)
+        simpan_data(semua_transaksi)
+
+        # 6. Tampilkan Output
         cetak_struk(profil, transaksi, streak)
 
-        # 6. Konfirmasi Lanjut/Keluar
+        # 7. Konfirmasi Lanjut/Keluar
         lanjut = input("Proses pengunjung lain? (y/n): ").strip().lower()
         if lanjut not in ['y', 'ya', 'yes']:
             print("\nTerima kasih telah menggunakan Nexus Library System. Sistem ditutup.")

@@ -1,0 +1,18 @@
+[
+    {
+        "profil": {
+            "nama": "ferry",
+            "nim": "055"
+        },
+        "transaksi": {
+            "judul_buku": "Jokowi adalah kita",
+            "kode_buku": "JOK-1",
+            "lama_pinjam": 10
+        },
+        "streak": {
+            "baru": 1,
+            "status": "\ud83d\udc94 STREAK HANGUS (Reset ke Day 1)",
+            "pesan_bonus": "Streak hilang karena absen 10 hari berturut-turut DAN terlambat mengembalikan buku!"
+        }
+    }
+]
