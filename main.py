@@ -2,40 +2,53 @@ import datetime
 import time
 
 # --- PUSAT KENDALI: IMPOR DARI FILE-FILE KECIL KITA ---
-# Perhatikan kita menambahkan FILE_KATALOG di bawah ini
 from database import muat_data, simpan_data, FILE_JSON, FILE_KATALOG
 from ui import clear_screen, notifikasi, input_angka_valid, input_teks_valid
 from auth import menu_autentikasi
 
-# Memasukkan argumen baru 'katalog' ke dalam fungsi
 def tambah_peminjaman_baru(semua_transaksi, user_aktif, nim_aktif, katalog):
     clear_screen()
     print("--- [1] PEMINJAMAN BUKU HARI INI ---")
     
-    # 1. Menampilkan Daftar Buku yang Tersedia
+    # 1. Menampilkan Daftar Buku
     print("\n--- KATALOG BUKU ---")
     for kode, info in katalog.items():
-        # Jika stok > 0 tampilkan angkanya, jika 0 tampilkan tulisan HABIS
         status_stok = info['stok'] if info['stok'] > 0 else "HABIS"
         print(f"[{kode}] {info['judul']} (Stok: {status_stok})")
     print("-" * 20)
 
-    # 2. Validasi Ketersediaan Buku
+    # 2. Loop Validasi Pemilihan Buku (Bisa Batal)
     while True:
-        # .upper() agar huruf kecil selalu menjadi huruf besar (contoh: py-01 jadi PY-01)
-        kode_buku = input_teks_valid("\nMasukkan Kode Buku yang ingin dipinjam: ").upper()
+        kode_buku = input_teks_valid("\nMasukkan Kode Buku (Ketik '0' untuk BATAL): ").upper()
         
+        # Fitur Pembatalan
+        if kode_buku == '0' or kode_buku == 'BATAL':
+            print("\n❌ Proses peminjaman dibatalkan. Kembali ke Dashboard...")
+            time.sleep(1.5)
+            return 
+            
         if kode_buku not in katalog:
             print("⚠️ Kode buku tidak ditemukan di katalog!")
         elif katalog[kode_buku]['stok'] <= 0:
             print("⚠️ Maaf, stok buku ini sedang kosong atau dipinjam orang lain!")
         else:
-            # Jika lolos validasi, ambil judul bukunya secara otomatis
             judul_buku = katalog[kode_buku]['judul']
             break 
             
-    lama_pinjam = input_angka_valid("Lama Pinjam (maks 12 hari)            : ")
+    # 3. Loop Validasi Durasi (Bisa Batal & Maks 12 Hari)
+    while True:
+        lama_pinjam = input_angka_valid("Lama Pinjam maks 12 hari (Ketik '0' untuk BATAL): ")
+        
+        if lama_pinjam == 0:
+            print("\n❌ Proses peminjaman dibatalkan. Kembali ke Dashboard...")
+            time.sleep(1.5)
+            return
+        elif lama_pinjam > 12:
+            print("⚠️ Anda tidak boleh meminjam lebih dari 12 hari!")
+        else:
+            break
 
+    # 4. Jika semua lolos, eksekusi peminjaman
     tanggal_hari_ini = datetime.date.today()
     tanggal_jatuh_tempo = tanggal_hari_ini + datetime.timedelta(days=lama_pinjam)
 
@@ -48,7 +61,7 @@ def tambah_peminjaman_baru(semua_transaksi, user_aktif, nim_aktif, katalog):
         "jatuh_tempo": str(tanggal_jatuh_tempo)
     }
     
-    # 3. Potong Stok Buku (-1) dan Simpan Katalog Baru
+    # Potong stok dan simpan
     katalog[kode_buku]['stok'] -= 1
     simpan_data(katalog, FILE_KATALOG)
 
@@ -81,7 +94,6 @@ def lihat_buku_saya(semua_transaksi, nim_aktif):
     input("\nTekan Enter untuk kembali ke Dashboard...")
 
 
-# Memasukkan argumen baru 'katalog' ke dalam fungsi
 def kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog):
     clear_screen()
     print("--- [3] PENGEMBALIAN BUKU ---")
@@ -112,7 +124,7 @@ def kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog):
             else:
                 print(f"✅ {data['transaksi']['judul_buku']} dikembalikan TEPAT WAKTU.")
                 
-            # 4. Tambahkan Kembali Stok Buku (+1) Saat Dikembalikan
+            # Tambahkan kembali stok buku yang dikembalikan
             kode_buku = data['transaksi'].get('kode_buku')
             if kode_buku and kode_buku in katalog:
                 katalog[kode_buku]['stok'] += 1
@@ -120,7 +132,7 @@ def kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog):
             semua_transaksi.remove(data)
             
         simpan_data(semua_transaksi, FILE_JSON)
-        simpan_data(katalog, FILE_KATALOG) # Jangan lupa simpan perubahan stok ke JSON!
+        simpan_data(katalog, FILE_KATALOG) 
         
         input("\nProses pengembalian selesai. Tekan Enter untuk melanjutkan...")
         notifikasi("Buku telah dikembalikan dan stok diperbarui!", "sukses")
@@ -138,7 +150,6 @@ def main():
         return False
 
     semua_transaksi = muat_data(FILE_JSON)
-    # Muat database katalog buku secara terpisah
     katalog_buku = muat_data(FILE_KATALOG)
 
     while True:
@@ -154,7 +165,6 @@ def main():
         
         pilihan = input("Pilih Menu (1/2/3/4): ").strip()
         
-        # Oper variabel katalog_buku ke dalam fungsi yang membutuhkannya
         if pilihan == '1':
             tambah_peminjaman_baru(semua_transaksi, user_aktif, nim_aktif, katalog_buku)
         elif pilihan == '2':
