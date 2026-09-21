@@ -1,6 +1,6 @@
 # ========================================================
 # PROTOTYPE SISTEM MANAJEMEN PERPUSTAKAAN (LIBRARY MANAGEMENT)
-# Versi Peningkatan: Modular, Auto-Save JSON, dan Menu Utama
+# Versi Peningkatan: Modular, Auto-Save JSON, Menu Utama, & Return Book
 # ========================================================
 
 import json
@@ -26,7 +26,7 @@ def muat_data():
 def simpan_data(data):
     with open(FILE_JSON, 'w') as file:
         json.dump(data, file, indent=4)
-    print("\n[INFO] Data transaksi berhasil disimpan secara otomatis ke dalam JSON.")
+    print("\n[INFO] Perubahan data berhasil disimpan otomatis ke JSON.")
 
 # --- FUNGSI VALIDASI ---
 def input_angka_valid(pesan_input):
@@ -91,7 +91,7 @@ def cetak_struk(profil, transaksi, streak):
 
 
 # ========================================================
-# BAGIAN BARU: FITUR MENU & MODULARISASI PROSES
+# BAGIAN MENU & MODULARISASI 
 # ========================================================
 
 def tambah_peminjaman_baru(semua_transaksi):
@@ -134,6 +134,7 @@ def tambah_peminjaman_baru(semua_transaksi):
     
     input("Tekan Enter untuk kembali ke Menu Utama...")
 
+
 def lihat_data_peminjam(semua_transaksi):
     print("\n========================================================")
     print("             DAFTAR PEMINJAM AKTIF                      ")
@@ -142,7 +143,6 @@ def lihat_data_peminjam(semua_transaksi):
     if len(semua_transaksi) == 0:
         print("Belum ada data peminjaman di sistem.")
     else:
-        # Menampilkan data satu per satu dari List
         for index, data in enumerate(semua_transaksi, start=1):
             nama = data['profil']['nama']
             nim = data['profil']['nim']
@@ -154,6 +154,50 @@ def lihat_data_peminjam(semua_transaksi):
             print("   -----------------------------------------------------")
             
     input("\nTekan Enter untuk kembali ke Menu Utama...")
+
+
+# --- FUNGSI BARU: PENGEMBALIAN BUKU ---
+def pengembalian_buku(semua_transaksi):
+    print("\n--- [3] PENGEMBALIAN BUKU ---")
+    
+    # Cek jika tidak ada data sama sekali
+    if len(semua_transaksi) == 0:
+        print("Belum ada data peminjaman aktif.")
+        input("\nTekan Enter untuk kembali ke Menu Utama...")
+        return
+        
+    cari_nim = input("Masukkan NIM Peminjam yang mengembalikan buku: ").strip()
+    
+    data_ditemukan = False
+    
+    # Looping untuk mencari NIM yang cocok
+    for index, data in enumerate(semua_transaksi):
+        if data['profil']['nim'] == cari_nim:
+            data_ditemukan = True
+            print("\n>> Data Ditemukan!")
+            print(f"Nama : {data['profil']['nama']}")
+            print(f"Buku : {data['transaksi']['judul_buku']}")
+            
+            # Konfirmasi penghapusan
+            konfirmasi = input("\nSelesaikan peminjaman (kembalikan buku)? (y/n): ").strip().lower()
+            if konfirmasi in ['y', 'ya', 'yes']:
+                # .pop(index) digunakan untuk menghapus elemen pada list berdasarkan indeks urutannya
+                semua_transaksi.pop(index)
+                
+                # Jangan lupa simpan perubahan JSON-nya!
+                simpan_data(semua_transaksi)
+                print("✅ Buku berhasil dikembalikan. Data peminjaman telah dihapus dari sistem aktif.")
+            else:
+                print("❌ Proses pengembalian dibatalkan.")
+                
+            break  # Berhenti mencari karena data sudah ketemu
+            
+    # Jika loop selesai tapi data_ditemukan masih False
+    if not data_ditemukan:
+        print(f"\n⚠️ Data dengan NIM '{cari_nim}' tidak ditemukan di sistem.")
+        
+    input("\nTekan Enter untuk kembali ke Menu Utama...")
+
 
 # --- PROGRAM UTAMA (MAIN LOOP) ---
 def main():
@@ -167,20 +211,23 @@ def main():
         print("========================================================")
         print("1. Tambah Peminjaman Baru")
         print("2. Lihat Semua Data Peminjam Aktif")
-        print("3. Keluar dari Program")
+        print("3. Pengembalian Buku (Selesaikan Peminjaman)") # Menu Baru
+        print("4. Keluar dari Program")
         print("========================================================")
         
-        pilihan = input("Pilih Menu (1/2/3): ").strip()
+        pilihan = input("Pilih Menu (1/2/3/4): ").strip()
         
         if pilihan == '1':
             tambah_peminjaman_baru(semua_transaksi)
         elif pilihan == '2':
             lihat_data_peminjam(semua_transaksi)
         elif pilihan == '3':
+            pengembalian_buku(semua_transaksi)
+        elif pilihan == '4':
             print("\nTerima kasih telah menggunakan Nexus Library System. Sistem ditutup.")
             break
         else:
-            print("\n⚠️ Pilihan tidak valid! Silakan ketik angka 1, 2, atau 3.")
+            print("\n⚠️ Pilihan tidak valid! Silakan ketik angka 1, 2, 3, atau 4.")
 
 # Menjalankan program utama
 if __name__ == "__main__":
