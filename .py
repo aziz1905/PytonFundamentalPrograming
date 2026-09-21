@@ -1,10 +1,11 @@
 # ========================================================
 # PROTOTYPE SISTEM MANAJEMEN PERPUSTAKAAN (LIBRARY MANAGEMENT)
-# Versi Peningkatan: Modular, Auto-Save JSON, Menu, Return Book, & Text Validation
+# Versi Peningkatan: Modular, Auto-Save JSON, Menu, Return Book, Text Validation, & DATETIME
 # ========================================================
 
 import json
 import os
+import datetime  # MENGIMPOR MODUL TANGGAL & WAKTU BAWAAN PYTHON
 
 # --- KONSTANTA ---
 BATAS_VIP = 7
@@ -40,10 +41,8 @@ def input_angka_valid(pesan_input):
         except ValueError:
             print("⚠️ Peringatan: Input tidak valid! Harap masukkan format angka (contoh: 0, 1, 2).\n")
 
-# FUNGSI BARU: Validasi Teks Tidak Boleh Kosong
 def input_teks_valid(pesan_input):
     while True:
-        # .strip() akan menghapus spasi kosong di awal dan akhir teks
         teks = input(pesan_input).strip() 
         if len(teks) == 0:
             print("⚠️ Peringatan: Input tidak boleh dikosongkan! Harap isi datanya.\n")
@@ -90,13 +89,16 @@ def cetak_struk(profil, transaksi, streak):
     print(f"Buku Dipinjam    : {transaksi['judul_buku']}")
     print(f"Kode/Kategori    : {transaksi['kode_buku']}")
     print(f"Durasi Pinjam    : {transaksi['lama_pinjam']} Hari")
+    # MENAMPILKAN TANGGAL
+    print(f"Tanggal Pinjam   : {transaksi['tanggal_pinjam']}")
+    print(f"Jatuh Tempo      : {transaksi['jatuh_tempo']}")
     print("--------------------------------------------------------")
     print("STATUS STREAK KAMU HARI INI:")
     print(f">> {streak['status']}")
     print(f">> Catatan: {streak['pesan_bonus']}")
     print("========================================================")
-    print(f"Kembali lagi besok sebelum jam {JAM_RESET_STREAK} dan kembalikan")
-    print(f"tepat waktu agar streak tidak hangus!")
+    print(f"Kembalikan tepat waktu sebelum {transaksi['jatuh_tempo']}")
+    print(f"agar streak tidak hangus!")
     print("========================================================\n")
 
 
@@ -106,8 +108,6 @@ def cetak_struk(profil, transaksi, streak):
 
 def tambah_peminjaman_baru(semua_transaksi):
     print("\n--- [1] REGISTRASI & STATUS STREAK ---")
-    
-    # MENGGUNAKAN FUNGSI BARU input_teks_valid()
     nama = input_teks_valid("Masukkan Nama Lengkap                  : ")
     nim = input_teks_valid("Masukkan NIM / ID Anggota              : ")
 
@@ -116,24 +116,42 @@ def tambah_peminjaman_baru(semua_transaksi):
 
     hari_absen = 0
     status_terlambat = "t"
+    
+    # Keterlambatan dan hari absen manual (untuk peminjam lama yang datanya belum otomatis)
     if streak_awal > 0:
         print("\n[Pengecekan Keaktifan & Ketepatan Waktu]")
         hari_absen = input_angka_valid("Berapa hari sejak peminjaman terakhir? : ")
-        # Untuk (y/n) bisa dikosongkan karena defaultnya bukan 'y', jadi pakai input() biasa tidak masalah
         status_terlambat = input("Apakah pengembalian terakhir terlambat? (y/n): ")
 
     streak_baru, status, pesan_bonus = hitung_status_streak(streak_awal, hari_absen, status_terlambat)
 
     print("\n--- [2] PEMINJAMAN BUKU HARI INI ---")
-    
-    # MENGGUNAKAN FUNGSI BARU input_teks_valid()
     judul_buku = input_teks_valid("Masukkan Judul Buku                    : ")
     kode_buku = input_teks_valid("Masukkan Kode / Kategori Buku          : ")
     print(f"----------------Estimasi {MAKS_HARI_PINJAM} Hari-------------------")
     lama_pinjam = input_angka_valid("Lama Pinjam (hari)                     : ")
 
+    # ================= FITUR DATETIME =================
+    tanggal_hari_ini = datetime.date.today()
+    # timedelta digunakan untuk menambahkan durasi hari ke tanggal hari ini
+    tanggal_jatuh_tempo = tanggal_hari_ini + datetime.timedelta(days=lama_pinjam)
+    
+    # Kita ubah formatnya menjadi String agar bisa masuk ke JSON
+    str_hari_ini = str(tanggal_hari_ini)
+    str_jatuh_tempo = str(tanggal_jatuh_tempo)
+    # ==================================================
+
     profil = {"nama": nama, "nim": nim}
-    transaksi = {"judul_buku": judul_buku, "kode_buku": kode_buku, "lama_pinjam": lama_pinjam}
+    
+    # Tambahkan field tanggal_pinjam dan jatuh_tempo ke transaksi
+    transaksi = {
+        "judul_buku": judul_buku, 
+        "kode_buku": kode_buku, 
+        "lama_pinjam": lama_pinjam,
+        "tanggal_pinjam": str_hari_ini,
+        "jatuh_tempo": str_jatuh_tempo
+    }
+    
     streak = {"baru": streak_baru, "status": status, "pesan_bonus": pesan_bonus}
 
     data_pengunjung = {
@@ -161,10 +179,10 @@ def lihat_data_peminjam(semua_transaksi):
             nama = data['profil']['nama']
             nim = data['profil']['nim']
             buku = data['transaksi']['judul_buku']
-            status_streak = data['streak']['status']
+            jatuh_tempo = data['transaksi'].get('jatuh_tempo', 'Tidak diketahui')
             
             print(f"{index}. {nama} ({nim}) | Buku: {buku}")
-            print(f"   Streak: {status_streak}")
+            print(f"   Jatuh Tempo: {jatuh_tempo}")
             print("   -----------------------------------------------------")
             
     input("\nTekan Enter untuk kembali ke Menu Utama...")
@@ -178,7 +196,6 @@ def pengembalian_buku(semua_transaksi):
         input("\nTekan Enter untuk kembali ke Menu Utama...")
         return
         
-    # MENGGUNAKAN FUNGSI BARU input_teks_valid()
     cari_nim = input_teks_valid("Masukkan NIM Peminjam yang mengembalikan buku: ")
     
     data_ditemukan = False
@@ -190,6 +207,25 @@ def pengembalian_buku(semua_transaksi):
             print(f"Nama : {data['profil']['nama']}")
             print(f"Buku : {data['transaksi']['judul_buku']}")
             
+            # ================= PENGECEKAN KETERLAMBATAN =================
+            tanggal_kembali = datetime.date.today()
+            jatuh_tempo_str = data['transaksi'].get('jatuh_tempo', str(tanggal_kembali))
+            
+            # strptime: mengubah string "YYYY-MM-DD" kembali menjadi objek date Python
+            jatuh_tempo = datetime.datetime.strptime(jatuh_tempo_str, "%Y-%m-%d").date()
+            
+            print(f"Tgl Jatuh Tempo    : {jatuh_tempo_str}")
+            print(f"Tgl Dikembalikan   : {tanggal_kembali}")
+            
+            # Cek keterlambatan menggunakan operator perbandingan (>)
+            if tanggal_kembali > jatuh_tempo:
+                telat = (tanggal_kembali - jatuh_tempo).days
+                print(f"⚠️ STATUS: TERLAMBAT {telat} HARI!")
+                print("⚠️ STREAK HANGUS: Keterlambatan ini akan menghanguskan streak peminjam di kunjungan berikutnya!")
+            else:
+                print("✅ STATUS: TEPAT WAKTU (Streak Aman!)")
+            # ============================================================
+
             konfirmasi = input("\nSelesaikan peminjaman (kembalikan buku)? (y/n): ").strip().lower()
             if konfirmasi in ['y', 'ya', 'yes']:
                 semua_transaksi.pop(index)
@@ -218,7 +254,7 @@ def main():
         print("========================================================")
         print("1. Tambah Peminjaman Baru")
         print("2. Lihat Semua Data Peminjam Aktif")
-        print("3. Pengembalian Buku (Selesaikan Peminjaman)")
+        print("3. Pengembalian Buku (Cek Keterlambatan)")
         print("4. Keluar dari Program")
         print("========================================================")
         

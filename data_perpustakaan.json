@@ -1,1 +1,20 @@
-[]
+[
+    {
+        "profil": {
+            "nama": "ferry firmando",
+            "nim": "055"
+        },
+        "transaksi": {
+            "judul_buku": "jokowi adalah kita",
+            "kode_buku": "JKW01",
+            "lama_pinjam": 10,
+            "tanggal_pinjam": "2026-09-21",
+            "jatuh_tempo": "2026-10-01"
+        },
+        "streak": {
+            "baru": 1,
+            "status": "\ud83d\udd25 Day 1 (Welcome to the Challenge!)",
+            "pesan_bonus": "Mulai streak-mu hari ini! Capai Day 7 untuk VIP Access."
+        }
+    }
+]
