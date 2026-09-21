@@ -1,6 +1,6 @@
 # ========================================================
 # PROTOTYPE SISTEM MANAJEMEN PERPUSTAKAAN (LIBRARY MANAGEMENT)
-# Versi Peningkatan: Modular, Auto-Save JSON, Menu Utama, & Return Book
+# Versi Peningkatan: Modular, Auto-Save JSON, Menu, Return Book, & Text Validation
 # ========================================================
 
 import json
@@ -28,7 +28,7 @@ def simpan_data(data):
         json.dump(data, file, indent=4)
     print("\n[INFO] Perubahan data berhasil disimpan otomatis ke JSON.")
 
-# --- FUNGSI VALIDASI ---
+# --- FUNGSI VALIDASI INPUT ---
 def input_angka_valid(pesan_input):
     while True:
         try:
@@ -39,6 +39,16 @@ def input_angka_valid(pesan_input):
             return angka
         except ValueError:
             print("⚠️ Peringatan: Input tidak valid! Harap masukkan format angka (contoh: 0, 1, 2).\n")
+
+# FUNGSI BARU: Validasi Teks Tidak Boleh Kosong
+def input_teks_valid(pesan_input):
+    while True:
+        # .strip() akan menghapus spasi kosong di awal dan akhir teks
+        teks = input(pesan_input).strip() 
+        if len(teks) == 0:
+            print("⚠️ Peringatan: Input tidak boleh dikosongkan! Harap isi datanya.\n")
+        else:
+            return teks
 
 # --- FUNGSI LOGIKA STREAK ---
 def hitung_status_streak(streak_awal, hari_absen, status_terlambat):
@@ -96,8 +106,10 @@ def cetak_struk(profil, transaksi, streak):
 
 def tambah_peminjaman_baru(semua_transaksi):
     print("\n--- [1] REGISTRASI & STATUS STREAK ---")
-    nama = input("Masukkan Nama Lengkap                  : ")
-    nim = input("Masukkan NIM / ID Anggota              : ")
+    
+    # MENGGUNAKAN FUNGSI BARU input_teks_valid()
+    nama = input_teks_valid("Masukkan Nama Lengkap                  : ")
+    nim = input_teks_valid("Masukkan NIM / ID Anggota              : ")
 
     print("\nBerapa hari streak kamu sebelumnya? (Ketik '0' jika baru)")
     streak_awal = input_angka_valid("Masukkan jumlah streak awal            : ")
@@ -107,13 +119,16 @@ def tambah_peminjaman_baru(semua_transaksi):
     if streak_awal > 0:
         print("\n[Pengecekan Keaktifan & Ketepatan Waktu]")
         hari_absen = input_angka_valid("Berapa hari sejak peminjaman terakhir? : ")
+        # Untuk (y/n) bisa dikosongkan karena defaultnya bukan 'y', jadi pakai input() biasa tidak masalah
         status_terlambat = input("Apakah pengembalian terakhir terlambat? (y/n): ")
 
     streak_baru, status, pesan_bonus = hitung_status_streak(streak_awal, hari_absen, status_terlambat)
 
     print("\n--- [2] PEMINJAMAN BUKU HARI INI ---")
-    judul_buku = input("Masukkan Judul Buku                    : ")
-    kode_buku = input("Masukkan Kode / Kategori Buku          : ")
+    
+    # MENGGUNAKAN FUNGSI BARU input_teks_valid()
+    judul_buku = input_teks_valid("Masukkan Judul Buku                    : ")
+    kode_buku = input_teks_valid("Masukkan Kode / Kategori Buku          : ")
     print(f"----------------Estimasi {MAKS_HARI_PINJAM} Hari-------------------")
     lama_pinjam = input_angka_valid("Lama Pinjam (hari)                     : ")
 
@@ -127,7 +142,6 @@ def tambah_peminjaman_baru(semua_transaksi):
         "streak": streak
     }
     
-    # Masukkan ke list dan simpan ke JSON
     semua_transaksi.append(data_pengunjung)
     simpan_data(semua_transaksi)
     cetak_struk(profil, transaksi, streak)
@@ -156,21 +170,19 @@ def lihat_data_peminjam(semua_transaksi):
     input("\nTekan Enter untuk kembali ke Menu Utama...")
 
 
-# --- FUNGSI BARU: PENGEMBALIAN BUKU ---
 def pengembalian_buku(semua_transaksi):
     print("\n--- [3] PENGEMBALIAN BUKU ---")
     
-    # Cek jika tidak ada data sama sekali
     if len(semua_transaksi) == 0:
         print("Belum ada data peminjaman aktif.")
         input("\nTekan Enter untuk kembali ke Menu Utama...")
         return
         
-    cari_nim = input("Masukkan NIM Peminjam yang mengembalikan buku: ").strip()
+    # MENGGUNAKAN FUNGSI BARU input_teks_valid()
+    cari_nim = input_teks_valid("Masukkan NIM Peminjam yang mengembalikan buku: ")
     
     data_ditemukan = False
     
-    # Looping untuk mencari NIM yang cocok
     for index, data in enumerate(semua_transaksi):
         if data['profil']['nim'] == cari_nim:
             data_ditemukan = True
@@ -178,21 +190,16 @@ def pengembalian_buku(semua_transaksi):
             print(f"Nama : {data['profil']['nama']}")
             print(f"Buku : {data['transaksi']['judul_buku']}")
             
-            # Konfirmasi penghapusan
             konfirmasi = input("\nSelesaikan peminjaman (kembalikan buku)? (y/n): ").strip().lower()
             if konfirmasi in ['y', 'ya', 'yes']:
-                # .pop(index) digunakan untuk menghapus elemen pada list berdasarkan indeks urutannya
                 semua_transaksi.pop(index)
-                
-                # Jangan lupa simpan perubahan JSON-nya!
                 simpan_data(semua_transaksi)
                 print("✅ Buku berhasil dikembalikan. Data peminjaman telah dihapus dari sistem aktif.")
             else:
                 print("❌ Proses pengembalian dibatalkan.")
                 
-            break  # Berhenti mencari karena data sudah ketemu
+            break 
             
-    # Jika loop selesai tapi data_ditemukan masih False
     if not data_ditemukan:
         print(f"\n⚠️ Data dengan NIM '{cari_nim}' tidak ditemukan di sistem.")
         
@@ -211,7 +218,7 @@ def main():
         print("========================================================")
         print("1. Tambah Peminjaman Baru")
         print("2. Lihat Semua Data Peminjam Aktif")
-        print("3. Pengembalian Buku (Selesaikan Peminjaman)") # Menu Baru
+        print("3. Pengembalian Buku (Selesaikan Peminjaman)")
         print("4. Keluar dari Program")
         print("========================================================")
         
@@ -229,6 +236,5 @@ def main():
         else:
             print("\n⚠️ Pilihan tidak valid! Silakan ketik angka 1, 2, 3, atau 4.")
 
-# Menjalankan program utama
 if __name__ == "__main__":
     main()
