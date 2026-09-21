@@ -1,0 +1,18 @@
+{
+    "PY-01": {
+        "judul": "Python Fundamental",
+        "stok": 2
+    },
+    "DB-02": {
+        "judul": "Database Relational Basic",
+        "stok": 2
+    },
+    "ML-03": {
+        "judul": "Machine Learning 101",
+        "stok": 5
+    },
+    "WEB-04": {
+        "judul": "Web Development HTML",
+        "stok": 1
+    }
+}

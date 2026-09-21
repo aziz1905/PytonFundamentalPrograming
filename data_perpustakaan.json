@@ -29,5 +29,18 @@
             "tanggal_pinjam": "2026-09-21",
             "jatuh_tempo": "2026-10-03"
         }
+    },
+    {
+        "profil": {
+            "nama": "Ferry Firmando",
+            "nim": "24110300055"
+        },
+        "transaksi": {
+            "judul_buku": "Python Fundamental",
+            "kode_buku": "PY-01",
+            "lama_pinjam": 10,
+            "tanggal_pinjam": "2026-09-21",
+            "jatuh_tempo": "2026-10-01"
+        }
     }
 ]
