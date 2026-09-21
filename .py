@@ -1,8 +1,6 @@
 # ========================================================
 # PROTOTYPE SISTEM MANAJEMEN PERPUSTAKAAN (LIBRARY MANAGEMENT)
-# Versi Peningkatan: Modular (Fungsi, Loop Utama, Validasi Input, & Aturan Streak Hangus)
-# Scope: CONDITIONAL STATEMENTS (if, elif, else, and, or)
-# + FITUR BARU: Auto-Save ke format JSON
+# Versi Peningkatan: Modular, Auto-Save JSON, dan Menu Utama
 # ========================================================
 
 import json
@@ -11,30 +9,26 @@ import os
 # --- KONSTANTA ---
 BATAS_VIP = 7
 MAKS_HARI_PINJAM = 12
-BATAS_HARI_ABSEN_HANGUS = 3  # Batas maksimal hari tidak pinjam sebelum streak hangus
+BATAS_HARI_ABSEN_HANGUS = 3  
 JAM_RESET_STREAK = "23:59"
-FILE_JSON = "data_perpustakaan.json"  # Nama file database kita
+FILE_JSON = "data_perpustakaan.json"  
 
-# --- FUNGSI MANAJEMEN JSON (BARU) ---
+# --- FUNGSI MANAJEMEN JSON ---
 def muat_data():
-    """Fungsi untuk membaca data JSON saat program baru dijalankan."""
     if os.path.exists(FILE_JSON):
         try:
             with open(FILE_JSON, 'r') as file:
                 return json.load(file)
         except json.JSONDecodeError:
-            # Berjaga-jaga jika file JSON kosong atau corrupt
             return []
     return []
 
 def simpan_data(data):
-    """Fungsi untuk menyimpan seluruh list transaksi ke dalam JSON."""
     with open(FILE_JSON, 'w') as file:
         json.dump(data, file, indent=4)
     print("\n[INFO] Data transaksi berhasil disimpan secara otomatis ke dalam JSON.")
 
 # --- FUNGSI VALIDASI ---
-# Fungsi ini memastikan user hanya memasukkan angka, mencegah program error (crash)
 def input_angka_valid(pesan_input):
     while True:
         try:
@@ -46,33 +40,25 @@ def input_angka_valid(pesan_input):
         except ValueError:
             print("⚠️ Peringatan: Input tidak valid! Harap masukkan format angka (contoh: 0, 1, 2).\n")
 
-# --- FUNGSI LOGIKA STREAK DENGAN CONDITIONAL STATEMENTS ---
-# Memproses status streak berdasarkan keaktifan & ketepatan waktu pengembalian
+# --- FUNGSI LOGIKA STREAK ---
 def hitung_status_streak(streak_awal, hari_absen, status_terlambat):
     terlambat = status_terlambat.strip().lower() in ['y', 'ya', 'yes', 'true']
     
-    # 1. KONDISI PENGGUNA BARU
     if streak_awal == 0:
         streak_baru = 1
         status = "🔥 Day 1 (Welcome to the Challenge!)"
         pesan_bonus = f"Mulai streak-mu hari ini! Capai Day {BATAS_VIP} untuk VIP Access."
-
-    # 2. KONDISI STREAK HANGUS (Absen >= 3 hari ATAU Terlambat)
     elif hari_absen >= BATAS_HARI_ABSEN_HANGUS or terlambat:
-        streak_baru = 1  # Reset kembali ke Day 1
+        streak_baru = 1  
         status = "💔 STREAK HANGUS (Reset ke Day 1)"
-
         if hari_absen >= BATAS_HARI_ABSEN_HANGUS and terlambat:
             pesan_bonus = f"Streak hilang karena absen {hari_absen} hari berturut-turut DAN terlambat mengembalikan buku!"
         elif hari_absen >= BATAS_HARI_ABSEN_HANGUS:
             pesan_bonus = f"Streak hilang karena tidak meminjam selama {hari_absen} hari (Batas maks: {BATAS_HARI_ABSEN_HANGUS - 1} hari)."
         else:
             pesan_bonus = "Streak hilang karena keterlambatan pengembalian buku sebelumnya!"
-
-    # 3. KONDISI STREAK BERHASIL DIPERTAHANKAN & BERTAMBAH
     else:
         streak_baru = streak_awal + 1
-
         if streak_baru < BATAS_VIP:
             status = f"🔥 Day {streak_baru} (On Fire!)"
             sisa_hari = BATAS_VIP - streak_baru
@@ -103,9 +89,74 @@ def cetak_struk(profil, transaksi, streak):
     print(f"tepat waktu agar streak tidak hangus!")
     print("========================================================\n")
 
+
+# ========================================================
+# BAGIAN BARU: FITUR MENU & MODULARISASI PROSES
+# ========================================================
+
+def tambah_peminjaman_baru(semua_transaksi):
+    print("\n--- [1] REGISTRASI & STATUS STREAK ---")
+    nama = input("Masukkan Nama Lengkap                  : ")
+    nim = input("Masukkan NIM / ID Anggota              : ")
+
+    print("\nBerapa hari streak kamu sebelumnya? (Ketik '0' jika baru)")
+    streak_awal = input_angka_valid("Masukkan jumlah streak awal            : ")
+
+    hari_absen = 0
+    status_terlambat = "t"
+    if streak_awal > 0:
+        print("\n[Pengecekan Keaktifan & Ketepatan Waktu]")
+        hari_absen = input_angka_valid("Berapa hari sejak peminjaman terakhir? : ")
+        status_terlambat = input("Apakah pengembalian terakhir terlambat? (y/n): ")
+
+    streak_baru, status, pesan_bonus = hitung_status_streak(streak_awal, hari_absen, status_terlambat)
+
+    print("\n--- [2] PEMINJAMAN BUKU HARI INI ---")
+    judul_buku = input("Masukkan Judul Buku                    : ")
+    kode_buku = input("Masukkan Kode / Kategori Buku          : ")
+    print(f"----------------Estimasi {MAKS_HARI_PINJAM} Hari-------------------")
+    lama_pinjam = input_angka_valid("Lama Pinjam (hari)                     : ")
+
+    profil = {"nama": nama, "nim": nim}
+    transaksi = {"judul_buku": judul_buku, "kode_buku": kode_buku, "lama_pinjam": lama_pinjam}
+    streak = {"baru": streak_baru, "status": status, "pesan_bonus": pesan_bonus}
+
+    data_pengunjung = {
+        "profil": profil,
+        "transaksi": transaksi,
+        "streak": streak
+    }
+    
+    # Masukkan ke list dan simpan ke JSON
+    semua_transaksi.append(data_pengunjung)
+    simpan_data(semua_transaksi)
+    cetak_struk(profil, transaksi, streak)
+    
+    input("Tekan Enter untuk kembali ke Menu Utama...")
+
+def lihat_data_peminjam(semua_transaksi):
+    print("\n========================================================")
+    print("             DAFTAR PEMINJAM AKTIF                      ")
+    print("========================================================")
+    
+    if len(semua_transaksi) == 0:
+        print("Belum ada data peminjaman di sistem.")
+    else:
+        # Menampilkan data satu per satu dari List
+        for index, data in enumerate(semua_transaksi, start=1):
+            nama = data['profil']['nama']
+            nim = data['profil']['nim']
+            buku = data['transaksi']['judul_buku']
+            status_streak = data['streak']['status']
+            
+            print(f"{index}. {nama} ({nim}) | Buku: {buku}")
+            print(f"   Streak: {status_streak}")
+            print("   -----------------------------------------------------")
+            
+    input("\nTekan Enter untuk kembali ke Menu Utama...")
+
 # --- PROGRAM UTAMA (MAIN LOOP) ---
 def main():
-    # MUAT DATA LAMA SAAT PROGRAM BARU DIBUKA (Langkah 4)
     semua_transaksi = muat_data()
     print(f"[SYSTEM] Berhasil memuat {len(semua_transaksi)} data pengunjung dari database.")
 
@@ -114,57 +165,22 @@ def main():
         print("             NEXUS LIBRARY & HABIT TRACKER              ")
         print("    Bangun kebiasaan membacamu. Jangan putus streak-nya!  ")
         print("========================================================")
-
-        # 1. Registrasi & Input Data Pengunjung
-        print("\n--- [1] REGISTRASI & STATUS STREAK ---")
-        nama = input("Masukkan Nama Lengkap                  : ")
-        nim = input("Masukkan NIM / ID Anggota              : ")
-
-        print("\nBerapa hari streak kamu sebelumnya? (Ketik '0' jika baru)")
-        streak_awal = input_angka_valid("Masukkan jumlah streak awal            : ")
-
-        # Input kondisi pengecekan streak jika bukan pengguna baru
-        hari_absen = 0
-        status_terlambat = "t"
-        if streak_awal > 0:
-            print("\n[Pengecekan Keaktifan & Ketepatan Waktu]")
-            hari_absen = input_angka_valid("Berapa hari sejak peminjaman terakhir? : ")
-            status_terlambat = input("Apakah pengembalian terakhir terlambat? (y/n): ")
-
-        # 2. Proses Logika Streak
-        streak_baru, status, pesan_bonus = hitung_status_streak(streak_awal, hari_absen, status_terlambat)
-
-        # 3. Transaksi Peminjaman
-        print("\n--- [2] PEMINJAMAN BUKU HARI INI ---")
-        judul_buku = input("Masukkan Judul Buku                    : ")
-        kode_buku = input("Masukkan Kode / Kategori Buku          : ")
-        print(f"----------------Estimasi {MAKS_HARI_PINJAM} Hari-------------------")
-        lama_pinjam = input_angka_valid("Lama Pinjam (hari)                     : ")
-
-        # 4. Susun Data (Dictionary)
-        profil = {"nama": nama, "nim": nim}
-        transaksi = {"judul_buku": judul_buku, "kode_buku": kode_buku, "lama_pinjam": lama_pinjam}
-        streak = {"baru": streak_baru, "status": status, "pesan_bonus": pesan_bonus}
-
-        # 5. Gabungkan dan Masukkan Data Baru ke Database List
-        data_pengunjung = {
-            "profil": profil,
-            "transaksi": transaksi,
-            "streak": streak
-        }
-        semua_transaksi.append(data_pengunjung)
+        print("1. Tambah Peminjaman Baru")
+        print("2. Lihat Semua Data Peminjam Aktif")
+        print("3. Keluar dari Program")
+        print("========================================================")
         
-        # SIMPAN PERUBAHAN KE FILE JSON (Langkah 4)
-        simpan_data(semua_transaksi)
-
-        # 6. Tampilkan Output
-        cetak_struk(profil, transaksi, streak)
-
-        # 7. Konfirmasi Lanjut/Keluar
-        lanjut = input("Proses pengunjung lain? (y/n): ").strip().lower()
-        if lanjut not in ['y', 'ya', 'yes']:
+        pilihan = input("Pilih Menu (1/2/3): ").strip()
+        
+        if pilihan == '1':
+            tambah_peminjaman_baru(semua_transaksi)
+        elif pilihan == '2':
+            lihat_data_peminjam(semua_transaksi)
+        elif pilihan == '3':
             print("\nTerima kasih telah menggunakan Nexus Library System. Sistem ditutup.")
             break
+        else:
+            print("\n⚠️ Pilihan tidak valid! Silakan ketik angka 1, 2, atau 3.")
 
 # Menjalankan program utama
 if __name__ == "__main__":
