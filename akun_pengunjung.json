@@ -2,11 +2,36 @@
     "24110300055": {
         "nama": "Ferry Firmando",
         "password": "rio021301998",
-        "streak_saat_ini": 0
+        "streak_saat_ini": 1,
+        "terakhir_checkin": "2026-10-01"
     },
     "24110300050": {
         "nama": "Billy Andreas",
         "password": "rio021301",
         "streak_saat_ini": 0
+    },
+    "24110300027": {
+        "nama": "Muhamad Aziz Sukandar",
+        "password": "rio021",
+        "streak_saat_ini": 1,
+        "riwayat_baca": [
+            {
+                "judul": "Sherlock Holmes: The Complete Collection",
+                "kode": "FIC-03",
+                "tanggal_kembali": "2026-10-01"
+            }
+        ],
+        "history_peminjaman": [
+            {
+                "kode_buku": "FIC-03",
+                "judul_buku": "Sherlock Holmes: The Complete Collection",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
+            }
+        ],
+        "terakhir_checkin": "2026-10-01"
     }
 }

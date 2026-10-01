@@ -13,8 +13,34 @@
         },
         "streak": {
             "baru": 1,
-            "status": "\ud83d\udd25 Day 1 (Welcome to the Challenge!)",
+            "status": "🔥 Day 1 (Welcome to the Challenge!)",
             "pesan_bonus": "Mulai streak-mu hari ini! Capai Day 7 untuk VIP Access."
+        }
+    },
+    {
+        "profil": {
+            "nama": "Muhamad Aziz Sukandar",
+            "nim": "24110300027"
+        },
+        "transaksi": {
+            "judul_buku": "Python Fundamental & Data Science",
+            "kode_buku": "PY-01",
+            "lama_pinjam": 12,
+            "tanggal_pinjam": "2026-10-01",
+            "jatuh_tempo": "2026-10-13"
+        }
+    },
+    {
+        "profil": {
+            "nama": "Muhamad Aziz Sukandar",
+            "nim": "24110300027"
+        },
+        "transaksi": {
+            "judul_buku": "Bumi Manusia - Pramoedya Ananta Toer",
+            "kode_buku": "FIC-01",
+            "lama_pinjam": 7,
+            "tanggal_pinjam": "2026-10-01",
+            "jatuh_tempo": "2026-10-08"
         }
     }
 ]
