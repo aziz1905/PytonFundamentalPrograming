@@ -3,12 +3,73 @@
         "nama": "Ferry Firmando",
         "password": "rio021301998",
         "streak_saat_ini": 1,
-        "terakhir_checkin": "2026-10-01"
+        "terakhir_checkin": "2026-10-04",
+        "riwayat_baca": [
+            {
+                "judul": "Atomic Habits: Bangun Kebiasaan Baik",
+                "kode": "BIZ-01",
+                "tanggal_kembali": "2026-10-01"
+            },
+            {
+                "judul": "Rich Dad Poor Dad (Financial Literacy)",
+                "kode": "BIZ-02",
+                "tanggal_kembali": "2026-10-01"
+            },
+            {
+                "judul": "Bumi Manusia - Pramoedya Ananta Toer",
+                "kode": "FIC-01",
+                "tanggal_kembali": "2026-10-01"
+            },
+            {
+                "judul": "Atomic Habits: Bangun Kebiasaan Baik",
+                "kode": "BIZ-01",
+                "tanggal_kembali": "2026-10-01"
+            }
+        ],
+        "history_peminjaman": [
+            {
+                "kode_buku": "BIZ-01",
+                "judul_buku": "Atomic Habits: Bangun Kebiasaan Baik",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
+            },
+            {
+                "kode_buku": "BIZ-02",
+                "judul_buku": "Rich Dad Poor Dad (Financial Literacy)",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
+            },
+            {
+                "kode_buku": "FIC-01",
+                "judul_buku": "Bumi Manusia - Pramoedya Ananta Toer",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
+            },
+            {
+                "kode_buku": "BIZ-01",
+                "judul_buku": "Atomic Habits: Bangun Kebiasaan Baik",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TERLAMBAT 1 HARI",
+                "denda": 2000
+            }
+        ]
     },
     "24110300050": {
         "nama": "Billy Andreas",
         "password": "rio021301",
-        "streak_saat_ini": 0
+        "streak_saat_ini": 1,
+        "terakhir_checkin": "2026-10-01"
     },
     "24110300027": {
         "nama": "Muhamad Aziz Sukandar",
@@ -18,6 +79,16 @@
             {
                 "judul": "Sherlock Holmes: The Complete Collection",
                 "kode": "FIC-03",
+                "tanggal_kembali": "2026-10-01"
+            },
+            {
+                "judul": "Python Fundamental & Data Science",
+                "kode": "PY-01",
+                "tanggal_kembali": "2026-10-01"
+            },
+            {
+                "judul": "Bumi Manusia - Pramoedya Ananta Toer",
+                "kode": "FIC-01",
                 "tanggal_kembali": "2026-10-01"
             }
         ],
@@ -30,8 +101,26 @@
                 "durasi_aktual_hari": 1,
                 "status": "TEPAT WAKTU",
                 "denda": 0
+            },
+            {
+                "kode_buku": "PY-01",
+                "judul_buku": "Python Fundamental & Data Science",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
+            },
+            {
+                "kode_buku": "FIC-01",
+                "judul_buku": "Bumi Manusia - Pramoedya Ananta Toer",
+                "tanggal_pinjam": "2026-10-01",
+                "tanggal_kembali": "2026-10-01",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
             }
         ],
-        "terakhir_checkin": "2026-10-01"
+        "terakhir_checkin": "2026-10-09"
     }
 }
