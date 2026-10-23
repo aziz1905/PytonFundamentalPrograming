@@ -53,7 +53,14 @@
     },
     "FIC-02": {
         "judul": "Harry Potter and the Sorcerer's Stone",
-        "stok": 0
+        "stok": 5,
+        "kategori": [
+            "umum"
+        ],
+        "lokasi": [
+            "1",
+            "umum"
+        ]
     },
     "FIC-03": {
         "judul": "Sherlock Holmes: The Complete Collection",

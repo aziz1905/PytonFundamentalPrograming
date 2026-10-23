@@ -25,6 +25,7 @@ from ui import (
     konfirmasi_ya_tidak
 )
 from auth import menu_autentikasi
+from admin.dashboard import dashboard_admin
 from ulasan import format_ulasan_buku, minta_ulasan_buku
 
 # ==============================================================================
@@ -648,7 +649,7 @@ def reading_habit_tracker(user_aktif, nim_aktif, database_akun):
 
 
 def main():
-    user_aktif, nim_aktif = menu_autentikasi()
+    user_aktif, nim_aktif, jenis_akun = menu_autentikasi()
     
     if not user_aktif:
         clear_screen()
@@ -659,6 +660,16 @@ def main():
     katalog_buku = muat_data(FILE_KATALOG)
     database_akun = muat_data(FILE_AKUN)
     ulasan_buku = muat_data(FILE_ULASAN)
+
+    if jenis_akun == "admin":
+        dashboard_admin(
+            user_aktif,
+            katalog_buku,
+            database_akun,
+            semua_transaksi,
+            ulasan_buku,
+        )
+        return True
 
     while True:
         data_user = database_akun.get(nim_aktif, user_aktif)

@@ -2,6 +2,7 @@ import datetime
 import time
 
 from database import muat_data, simpan_data, FILE_AKUN
+from admin.authentication import login_admin
 from ui import LEBAR_TAMPILAN, cetak_header, notifikasi, input_teks_valid
 
 def menu_autentikasi():
@@ -10,12 +11,13 @@ def menu_autentikasi():
     while True:
         cetak_header("NEXUS KIOSK - PERPUSTAKAAN MANDIRI", "Silakan Masuk atau Daftarkan Akun Anda")
         
-        print("\n [1] 🔑 Login Pengunjung (NIM & Password)")
+        print("\n [1] 🔑 Login sebagai Pengunjung")
         print(" [2] 📝 Daftar Akun Baru (Registrasi)")
+        print(" [3] 🛡️  Login sebagai Administrator")
         print(" [0] 🔌 Matikan Kiosk (Keluar)")
         print("─" * LEBAR_TAMPILAN)
         
-        pilihan = input("\nMasukkan pilihan menu (0-2): ").strip()
+        pilihan = input("\nMasukkan pilihan menu (0-3): ").strip()
         
         if pilihan == '1':
             cetak_header("LOGIN PENGUNJUNG", "Masukkan Akun Terdaftar")
@@ -62,7 +64,7 @@ def menu_autentikasi():
                     "sukses", 
                     durasi=2.0
                 )
-                return user, nim 
+                return user, nim, "pengunjung"
             else:
                 notifikasi("NIM tidak terdaftar atau Password salah!", "gagal")
                 
@@ -93,8 +95,12 @@ def menu_autentikasi():
             simpan_data(database_akun, FILE_AKUN)
             notifikasi("Akun berhasil dibuat! Silakan Login sekarang.", "sukses")
             
-        elif pilihan in ('0', '3', 'keluar', 'exit'):
-            return None, None
+        elif pilihan in ('0', 'keluar', 'exit'):
+            return None, None, None
+        elif pilihan == '3':
+            admin = login_admin()
+            if admin:
+                return admin, admin["username"], "admin"
         else:
             print("\n⚠️ Pilihan tidak valid! Harap pilih menu yang tersedia.")
             time.sleep(1)

@@ -64,6 +64,21 @@ Untuk meningkatkan pengalaman pengguna (*User Experience*), sistem ini menerapka
  [0] 🚪 Logout                  -> Keluar akun dengan aman
 ```
 
+## 🛡️ Akses Administrator
+Pilih menu **Login sebagai Administrator** pada layar autentikasi. Saat pertama kali dipilih dan belum ada admin, kiosk akan meminta pembuatan username dan password admin. Password administrator disimpan sebagai hash PBKDF2 dengan salt acak dalam `admin/admin_accounts.json`, yang tidak disertakan dalam version control.
+
+Dashboard admin menyediakan ringkasan perpustakaan, pengelolaan katalog (tambah/edit/hapus), daftar akun pengunjung, laporan peminjaman aktif dan selesai, serta moderasi ulasan.
+
+Struktur modul admin:
+```text
+admin/
+├── authentication.py  # Setup admin pertama dan login
+├── catalog.py         # Kelola koleksi buku
+├── dashboard.py       # Navigasi dashboard admin
+├── reports.py         # Ringkasan, pengunjung, dan peminjaman
+└── reviews.py         # Moderasi ulasan buku
+```
+
 ---
 
 ## 🚀 Cara Menjalankan Program
