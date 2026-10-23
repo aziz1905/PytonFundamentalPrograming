@@ -50,7 +50,7 @@ def dashboard_admin(admin_aktif, katalog, database_akun, semua_transaksi, ulasan
             tampilkan_peminjaman(semua_transaksi, database_akun)
             input("\nTekan Enter untuk kembali ke dashboard...")
         elif pilihan == "5":
-            moderasi_ulasan(ulasan_buku)
+            moderasi_ulasan(ulasan_buku, katalog)
         elif pilihan == "0":
             notifikasi("Anda telah logout dari dashboard admin.", "info")
             return

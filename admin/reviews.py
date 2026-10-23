@@ -6,18 +6,44 @@ from ui import (
 )
 
 
-def moderasi_ulasan(ulasan_buku):
+def moderasi_ulasan(ulasan_buku, katalog=None):
     while True:
         total_ulasan = sum(len(daftar) for daftar in ulasan_buku.values())
         cetak_header("MODERASI ULASAN", f"Total ulasan: {total_ulasan}")
-        kode_buku = input("Kode buku untuk melihat ulasan (0 untuk kembali): ").strip().upper()
+
+        # Tampilkan daftar petunjuk buku yang memiliki ulasan
+        buku_berulasan = [
+            (kode, len(daftar))
+            for kode, daftar in ulasan_buku.items()
+            if len(daftar) > 0
+        ]
+
+        if not buku_berulasan:
+            print("\n  ℹ️ Belum ada ulasan buku yang masuk.")
+            input("\nTekan Enter untuk kembali ke dashboard admin...")
+            return
+
+        daftar_petunjuk = []
+        for kode, jumlah in buku_berulasan:
+            judul = "-"
+            if katalog and kode in katalog:
+                judul = katalog[kode].get("judul", "-")
+            daftar_petunjuk.append(f"[{kode}] {judul} ({jumlah} ulasan)")
+
+        cetak_kartu("DAFTAR BUKU YANG MEMILIKI ULASAN", daftar_petunjuk)
+        print("\n💡 Petunjuk: Masukkan Kode Buku di atas atau ketik '0' untuk kembali.")
+        kode_buku = input("\nKode buku untuk melihat ulasan: ").strip().upper()
         if kode_buku == "0":
             return
 
         daftar_ulasan = ulasan_buku.get(kode_buku, [])
         if not daftar_ulasan:
-            print("⚠️ Tidak ada ulasan untuk kode buku tersebut.")
+            print("⚠️ Tidak ada ulasan untuk kode buku tersebut. Harap pilih dari daftar di atas.")
+            input("\nTekan Enter untuk melanjutkan...")
             continue
+
+        judul_buku = katalog[kode_buku].get("judul", kode_buku) if (katalog and kode_buku in katalog) else kode_buku
+        cetak_header(f"ULASAN: {kode_buku}", f"Judul: {judul_buku} ({len(daftar_ulasan)} ulasan)")
 
         kartu_ulasan = []
         for indeks, ulasan in enumerate(daftar_ulasan, start=1):
@@ -47,6 +73,7 @@ def moderasi_ulasan(ulasan_buku):
             continue
         if not pilihan.isdigit() or not 1 <= int(pilihan) <= len(daftar_ulasan):
             print("⚠️ Nomor ulasan tidak valid.")
+            input("\nTekan Enter untuk melanjutkan...")
             continue
 
         indeks = int(pilihan) - 1
@@ -60,3 +87,4 @@ def moderasi_ulasan(ulasan_buku):
                 del ulasan_buku[kode_buku]
             simpan_data(ulasan_buku, FILE_ULASAN)
             print("✅ Ulasan berhasil dihapus.")
+            input("\nTekan Enter untuk melanjutkan...")

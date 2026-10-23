@@ -65,5 +65,16 @@
     "FIC-03": {
         "judul": "Sherlock Holmes: The Complete Collection",
         "stok": 1
+    },
+    "IAP-01": {
+        "judul": "Islam Ala Prabowo",
+        "stok": 3,
+        "kategori": [
+            "Politik"
+        ],
+        "lokasi": [
+            "[Lantai -  2]",
+            "Rak Politik"
+        ]
     }
 }
