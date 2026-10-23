@@ -50,13 +50,7 @@ def hitung_denda_dan_status(jatuh_tempo_str, tanggal_kembali):
 
 
 def hitung_estimasi_peminjaman(history_peminjaman, streak_hari):
-    """
-    FITUR ESTIMASI CERDAS (LIST & TUPLE):
-    Menghitung estimasi selesai membaca dan rekomendasi durasi pinjam.
-    Return berupa TUPLE:
-    (estimasi_hari, rekomendasi_pinjam, rata_rata_historis, persen_efisiensi, label_streak)
-    """
-    # 1. Ekstraksi durasi dari List History
+
     durasi_list = [
         item['durasi_aktual_hari'] 
         for item in history_peminjaman 
@@ -578,9 +572,10 @@ def reading_habit_tracker(user_aktif, nim_aktif, database_akun):
     print("\nPilihan Aksi:")
     print(" [1] ✅ Check-In Membaca Hari Ini (+1 Streak Harian)")
     print(" [2] 📖 Lihat Riwayat Buku Selesai Dibaca")
+    print(" [3] 🪪 Tampilkan Kartu Anggota Digital & Pass Literasi")
     print(" [0] ↩️  Kembali ke Dashboard")
     
-    pilihan = input("\nMasukkan pilihan (0-2): ").strip()
+    pilihan = input("\nMasukkan pilihan (0-3): ").strip()
     
     if pilihan == '1':
         hari_ini = datetime.date.today()
@@ -618,6 +613,21 @@ def reading_habit_tracker(user_aktif, nim_aktif, database_akun):
                 print(f"     ✅ Selesai Dikembalikan: {item.get('tanggal_kembali', '-')}")
                 print("─" * 60)
         input("\nTekan Enter untuk kembali...")
+        
+    elif pilihan == '3':
+        cetak_header("KARTU ANGGOTA DIGITAL & PASS LITERASI")
+        print("\n ╔══════════════════════════════════════════════════════════╗")
+        print(" ║            NEXUS SMART LIBRARY - DIGITAL PASS            ║")
+        print(" ╠══════════════════════════════════════════════════════════╣")
+        print(f" ║  Nama Lengkap  : {data_user.get('nama', '').upper().ljust(39)} ║")
+        print(f" ║  Nomor Anggota : {nim_aktif.ljust(39)} ║")
+        print(f" ║  Level Literasi: {badge_tercapai.ljust(39)} ║")
+        print(f" ║  Streak Aktif  : {str(streak_saat_ini).ljust(2)} Hari Membaca Berturut-turut 🔥     ║")
+        print(f" ║  Buku Dibaca   : {str(len(riwayat_baca)).ljust(2)} Judul Selesai                    ║")
+        print(" ╠══════════════════════════════════════════════════════════╣")
+        print(" ║  BARCODE: ||||| | |||| ||| || ||||| |||| || |||||| ||||  ║")
+        print(" ╚══════════════════════════════════════════════════════════╝")
+        input("\nTekan Enter untuk kembali ke Habit Tracker...")
 
 
 def main():

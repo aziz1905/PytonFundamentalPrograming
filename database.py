@@ -11,7 +11,7 @@ FILE_KATALOG = "katalog_buku.json"
 # disimpan dalam bentuk TUPLE agar tidak sengaja termodifikasi saat runtime.
 # Format Tuple: (MAKS_HARI_PINJAM, TARIF_DENDA_PER_HARI, MAKS_BUKU_SEKALIGUS)
 # ==============================================================================
-KONFIGURASI_PERPUSTAKAAN = (12, 2000, 3)
+KONFIGURASI_PERPUSTAKAAN = (14, 2000, 3)
 
 # ==============================================================================
 # CONTOH PENGGUNAAN TUPLE OF TUPLES:
