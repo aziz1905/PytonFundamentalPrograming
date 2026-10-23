@@ -3,7 +3,7 @@
         "nama": "Ferry Firmando",
         "password": "rio021301998",
         "streak_saat_ini": 1,
-        "terakhir_checkin": "2026-10-04",
+        "terakhir_checkin": "2026-10-23",
         "riwayat_baca": [
             {
                 "judul": "Atomic Habits: Bangun Kebiasaan Baik",
@@ -24,6 +24,11 @@
                 "judul": "Atomic Habits: Bangun Kebiasaan Baik",
                 "kode": "BIZ-01",
                 "tanggal_kembali": "2026-10-01"
+            },
+            {
+                "judul": "Sherlock Holmes: The Complete Collection",
+                "kode": "FIC-03",
+                "tanggal_kembali": "2026-10-23"
             }
         ],
         "history_peminjaman": [
@@ -62,6 +67,15 @@
                 "durasi_aktual_hari": 1,
                 "status": "TERLAMBAT 1 HARI",
                 "denda": 2000
+            },
+            {
+                "kode_buku": "FIC-03",
+                "judul_buku": "Sherlock Holmes: The Complete Collection",
+                "tanggal_pinjam": "2026-10-23",
+                "tanggal_kembali": "2026-10-23",
+                "durasi_aktual_hari": 1,
+                "status": "TEPAT WAKTU",
+                "denda": 0
             }
         ]
     },

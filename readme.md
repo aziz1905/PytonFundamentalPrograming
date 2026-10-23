@@ -19,6 +19,13 @@ Untuk meningkatkan pengalaman pengguna (*User Experience*), sistem ini menerapka
    Menggunakan bingkai kotak (*Box Card Layout*) yang rapi untuk memisahkan informasi penting (Status Streak, Rekomendasi Durasi, Riwayat Transaksi).
 5. **Pencegahan Kesalahan (*Error Prevention & Confirmation*)**:
    Menyediakan kartu ringkasan transaksi sebelum eksekusi dan tombol pembatalan (`0`) yang konsisten di semua alur.
+6. **Rating dan Ulasan Pembaca**:
+   Setelah mengembalikan buku, pengunjung dapat memberikan rating 1-5 dan deskripsi pengalaman membaca. Rating rata-rata dan komentar ditampilkan pada katalog dan pilihan peminjaman untuk membantu pengunjung lain.
+
+### 🧱 Modularisasi Fitur Ulasan
+- `ulasan.py` menangani input, penyimpanan, pembaruan, dan tampilan ulasan buku.
+- `ulasan_buku.json` menyimpan ulasan terpisah dari data katalog dan akun.
+- Satu pembaca memiliki satu ulasan aktif per buku; ulasan dapat diperbarui saat buku yang sama dikembalikan lagi.
 
 ---
 

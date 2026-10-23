@@ -4,6 +4,7 @@ import os
 FILE_JSON = "data_perpustakaan.json"  
 FILE_AKUN = "akun_pengunjung.json" 
 FILE_KATALOG = "katalog_buku.json"
+FILE_ULASAN = "ulasan_buku.json"
 
 # ==============================================================================
 # CONTOH PENGGUNAAN TUPLE:
@@ -82,7 +83,10 @@ def muat_data(nama_file):
         simpan_data(buku_default, FILE_KATALOG)
         return buku_default
         
-    return {} if nama_file == FILE_AKUN else []
+    if nama_file in (FILE_AKUN, FILE_ULASAN):
+        return {}
+
+    return []
 
 def simpan_data(data, nama_file):
     with open(nama_file, 'w', encoding='utf-8') as file:

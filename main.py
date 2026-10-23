@@ -8,6 +8,7 @@ from database import (
     FILE_JSON, 
     FILE_AKUN, 
     FILE_KATALOG,
+    FILE_ULASAN,
     KONFIGURASI_PERPUSTAKAAN,
     BADGE_STREAK,
     FAKTOR_KECEPATAN_STREAK,
@@ -23,6 +24,7 @@ from ui import (
     konfirmasi_ya_tidak
 )
 from auth import menu_autentikasi
+from ulasan import minta_ulasan_buku, tampilkan_ulasan_buku
 
 # ==============================================================================
 # CONTOH PENGGUNAAN TUPLE UNPACKING:
@@ -106,7 +108,7 @@ def dapatkan_list_buku(katalog, filter_kategori="Semua", filter_keyword=""):
     return daftar_terfilter
 
 
-def tampilkan_tabel_katalog(daftar_buku):
+def tampilkan_tabel_katalog(daftar_buku, ulasan_buku):
     """
     Menampilkan daftar buku dalam format visual yang rapi dan mudah dibaca (HCD).
     """
@@ -129,10 +131,13 @@ def tampilkan_tabel_katalog(daftar_buku):
         print(f"     🏷️ Kategori : [{kategori_str}]")
         print(f"     📍 Lokasi   : {lantai} - {rak}")
         print(f"     📦 Status   : {status_stok}")
+        tampilkan_ulasan_buku(kode, ulasan_buku)
         print("─" * 60)
 
 
-def tambah_peminjaman_baru(semua_transaksi, user_aktif, nim_aktif, katalog, database_akun):
+def tambah_peminjaman_baru(
+    semua_transaksi, user_aktif, nim_aktif, katalog, database_akun, ulasan_buku
+):
     """
     Alur peminjaman buku yang telah dioptimalkan untuk Human-Centered Design (HCD):
     - Cukup pilih nomor urut buku (tidak perlu mengetik kode manual).
@@ -156,7 +161,7 @@ def tambah_peminjaman_baru(semua_transaksi, user_aktif, nim_aktif, katalog, data
 
     # 2. Tampilkan Katalog Buku Langsung dengan Nomor Urut
     daftar_buku = dapatkan_list_buku(katalog)
-    tampilkan_tabel_katalog(daftar_buku)
+    tampilkan_tabel_katalog(daftar_buku, ulasan_buku)
     
     print("\n💡 Petunjuk: Masukkan NOMOR BUKU (1, 2, ...) atau ketik '0' untuk Batal.")
     
@@ -295,7 +300,9 @@ def lihat_buku_saya(semua_transaksi, nim_aktif, katalog):
     input("\nTekan Enter untuk kembali ke Dashboard...")
 
 
-def kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog, user_aktif, database_akun):
+def kembalikan_buku_saya(
+    semua_transaksi, nim_aktif, katalog, user_aktif, database_akun, ulasan_buku
+):
     """
     Fitur pengembalian buku dengan alur intuitif dan konfirmasi jelas.
     """
@@ -403,6 +410,15 @@ def kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog, user_aktif, databa
             "status": status_pesan,
             "denda": denda
         })
+
+        if kode:
+            minta_ulasan_buku(
+                ulasan_buku,
+                kode,
+                nim_aktif,
+                user_aktif['nama'],
+                judul,
+            )
         
         semua_transaksi.remove(data)
         
@@ -421,7 +437,7 @@ def kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog, user_aktif, databa
     notifikasi("Buku telah berhasil dikembalikan!", "sukses")
 
 
-def cari_dan_filter_katalog(katalog):
+def cari_dan_filter_katalog(katalog, ulasan_buku):
     """
     Menu eksplorasi katalog yang ramah dan interaktif (HCD):
     Pengguna diberi pilihan jelas (Cari, Filter Genre, atau Lihat Semua)
@@ -446,7 +462,7 @@ def cari_dan_filter_katalog(katalog):
             # Tampilkan semua
             daftar = dapatkan_list_buku(katalog, filter_kategori="Semua")
             cetak_header("SELURUH KOLEKSI BUKU", f"Total: {len(daftar)} Judul Buku")
-            tampilkan_tabel_katalog(daftar)
+            tampilkan_tabel_katalog(daftar, ulasan_buku)
             input("\nTekan Enter untuk kembali ke menu pencarian...")
             
         elif pilihan == "2":
@@ -469,7 +485,7 @@ def cari_dan_filter_katalog(katalog):
                     kat_terpilih = kategori_opsi[idx_k - 1]
                     daftar = dapatkan_list_buku(katalog, filter_kategori=kat_terpilih)
                     cetak_header(f"KOLEKSI KATEGORI: {kat_terpilih.upper()}", f"Ditemukan: {len(daftar)} Buku")
-                    tampilkan_tabel_katalog(daftar)
+                    tampilkan_tabel_katalog(daftar, ulasan_buku)
                     input("\nTekan Enter untuk kembali...")
                 else:
                     print("⚠️ Nomor kategori tidak valid.")
@@ -489,7 +505,7 @@ def cari_dan_filter_katalog(katalog):
                 
             daftar = dapatkan_list_buku(katalog, filter_keyword=keyword)
             cetak_header(f"HASIL PENCARIAN: '{keyword}'", f"Ditemukan {len(daftar)} Buku")
-            tampilkan_tabel_katalog(daftar)
+            tampilkan_tabel_katalog(daftar, ulasan_buku)
             input("\nTekan Enter untuk kembali...")
 
 
@@ -641,6 +657,7 @@ def main():
     semua_transaksi = muat_data(FILE_JSON)
     katalog_buku = muat_data(FILE_KATALOG)
     database_akun = muat_data(FILE_AKUN)
+    ulasan_buku = muat_data(FILE_ULASAN)
 
     while True:
         data_user = database_akun.get(nim_aktif, user_aktif)
@@ -673,13 +690,27 @@ def main():
         pilihan = input("Pilih menu (0-6): ").strip()
         
         if pilihan == '1':
-            tambah_peminjaman_baru(semua_transaksi, user_aktif, nim_aktif, katalog_buku, database_akun)
+            tambah_peminjaman_baru(
+                semua_transaksi,
+                user_aktif,
+                nim_aktif,
+                katalog_buku,
+                database_akun,
+                ulasan_buku,
+            )
         elif pilihan == '2':
             lihat_buku_saya(semua_transaksi, nim_aktif, katalog_buku)
         elif pilihan == '3':
-            kembalikan_buku_saya(semua_transaksi, nim_aktif, katalog_buku, user_aktif, database_akun)
+            kembalikan_buku_saya(
+                semua_transaksi,
+                nim_aktif,
+                katalog_buku,
+                user_aktif,
+                database_akun,
+                ulasan_buku,
+            )
         elif pilihan == '4':
-            cari_dan_filter_katalog(katalog_buku)
+            cari_dan_filter_katalog(katalog_buku, ulasan_buku)
         elif pilihan == '5':
             menu_history_dan_estimasi(user_aktif, nim_aktif, database_akun)
         elif pilihan == '6':
