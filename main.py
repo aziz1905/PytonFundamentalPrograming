@@ -15,6 +15,7 @@ from database import (
     DAFTAR_KATEGORI
 )
 from ui import (
+    LEBAR_TAMPILAN,
     clear_screen, 
     cetak_header, 
     cetak_kartu, 
@@ -24,7 +25,7 @@ from ui import (
     konfirmasi_ya_tidak
 )
 from auth import menu_autentikasi
-from ulasan import minta_ulasan_buku, tampilkan_ulasan_buku
+from ulasan import format_ulasan_buku, minta_ulasan_buku
 
 # ==============================================================================
 # CONTOH PENGGUNAAN TUPLE UNPACKING:
@@ -116,7 +117,7 @@ def tampilkan_tabel_katalog(daftar_buku, ulasan_buku):
         print("\n  ⚠️ Tidak ada buku yang sesuai dengan kriteria yang dipilih.")
         return
 
-    print("\n" + "─" * 60)
+    print()
     for idx, (kode, info) in enumerate(daftar_buku, 1):
         stok = info.get('stok', 0)
         status_stok = f"✅ Tersedia: {stok} eks" if stok > 0 else "❌ STOK HABIS"
@@ -125,14 +126,14 @@ def tampilkan_tabel_katalog(daftar_buku, ulasan_buku):
         lokasi = tuple(info.get('lokasi', ['Lantai 1', 'Rak Umum']))
         lantai, rak = lokasi
         
-        kategori_str = ", ".join(info.get('kategori', []))
-        
-        print(f" [{idx}] {info['judul']} ({kode})")
-        print(f"     🏷️ Kategori : [{kategori_str}]")
-        print(f"     📍 Lokasi   : {lantai} - {rak}")
-        print(f"     📦 Status   : {status_stok}")
-        tampilkan_ulasan_buku(kode, ulasan_buku)
-        print("─" * 60)
+        kategori_str = ", ".join(info.get('kategori', ["Umum"]))
+        detail_buku = [
+            f"🏷️ Kategori: {kategori_str}",
+            f"📍 Lokasi: {lantai} - {rak}",
+            f"📦 Status: {status_stok}",
+            *format_ulasan_buku(kode, ulasan_buku),
+        ]
+        cetak_kartu(f"{idx}. {info['judul']} ({kode})", detail_buku)
 
 
 def tambah_peminjaman_baru(
@@ -238,12 +239,12 @@ def tambah_peminjaman_baru(
     tanggal_hari_ini = datetime.date.today()
     tanggal_jatuh_tempo = tanggal_hari_ini + datetime.timedelta(days=lama_pinjam)
     
-    print("\n" + "─" * 60)
+    print("\n" + "─" * LEBAR_TAMPILAN)
     print("📋 RINGKASAN PEMINJAMAN:")
     print(f"  • Judul Buku   : {buku_terpilih['judul']}")
     print(f"  • Tanggal Pinjam : {tanggal_hari_ini}")
     print(f"  • Jatuh Tempo    : {tanggal_jatuh_tempo} ({lama_pinjam} Hari)")
-    print("─" * 60)
+    print("─" * LEBAR_TAMPILAN)
     
     if not konfirmasi_ya_tidak("Konfirmasi peminjaman ini sekarang?"):
         print("\n❌ Transaksi dibatalkan.")
@@ -281,7 +282,7 @@ def lihat_buku_saya(semua_transaksi, nim_aktif, katalog):
         print("\n  ℹ️ Anda sedang tidak meminjam buku apa pun saat ini.\n")
     else:
         print(f"\n  📊 Kuota Pinjam Terpakai: {len(buku_saya)} dari {MAKS_BUKU_SEKALIGUS} Buku (Maksimal)\n")
-        print("─" * 60)
+        print("─" * LEBAR_TAMPILAN)
         for index, data in enumerate(buku_saya, start=1):
             t = data['transaksi']
             kode = t.get('kode_buku', 'N/A')
@@ -295,7 +296,7 @@ def lihat_buku_saya(semua_transaksi, nim_aktif, katalog):
             print(f"     📅 Tgl Pinjam  : {t.get('tanggal_pinjam', '-')}")
             print(f"     ⏳ Jatuh Tempo : {jatuh_tempo}")
             print(f"     📍 Lokasi Asal : {lantai}, {rak}")
-            print("─" * 60)
+            print("─" * LEBAR_TAMPILAN)
             
     input("\nTekan Enter untuk kembali ke Dashboard...")
 
@@ -316,11 +317,11 @@ def kembalikan_buku_saya(
         return
         
     print("\nBuku yang sedang Anda pinjam:")
-    print("─" * 60)
+    print("─" * LEBAR_TAMPILAN)
     for idx, data in enumerate(buku_dipinjam, 1):
         t = data['transaksi']
         print(f" [{idx}] {t['judul_buku']} ({t.get('kode_buku')}) | Jatuh tempo: {t.get('jatuh_tempo')}")
-    print("─" * 60)
+    print("─" * LEBAR_TAMPILAN)
     
     print("\nPilihan Aksi Pengembalian:")
     print(" [A] Kembalikan SEMUA Buku Sekaligus")
@@ -359,9 +360,9 @@ def kembalikan_buku_saya(
     if 'history_peminjaman' not in database_akun[nim_aktif]:
         database_akun[nim_aktif]['history_peminjaman'] = []
 
-    print("\n" + "─" * 60)
+    print("\n" + "─" * LEBAR_TAMPILAN)
     print("📋 HASIL PENGECEKAN STATUS PENGEMBALIAN:")
-    print("─" * 60)
+    print("─" * LEBAR_TAMPILAN)
     
     for data in buku_yang_akan_kembali:
         judul = data['transaksi']['judul_buku']
@@ -428,11 +429,11 @@ def kembalikan_buku_saya(
     
     if total_denda_semua > 0:
         total_str = f"Rp {total_denda_semua:,}".replace(',', '.')
-        print("─" * 60)
+        print("─" * LEBAR_TAMPILAN)
         print(f" 💰 TOTAL DENDA KETERLAMBATAN : {total_str}")
         print("    (Harap bayar di loket kasir perpustakaan)")
     
-    print("─" * 60)
+    print("─" * LEBAR_TAMPILAN)
     input("\nTekan Enter untuk menyelesaikan...")
     notifikasi("Buku telah berhasil dikembalikan!", "sukses")
 
@@ -451,7 +452,7 @@ def cari_dan_filter_katalog(katalog, ulasan_buku):
         print(" [2] 🏷️  Filter berdasarkan Kategori / Genre")
         print(" [3] 🔍 Cari dengan Kata Kunci (Judul, Topik, atau Kode)")
         print(" [0] ↩️  Kembali ke Dashboard Utama")
-        print("─" * 60)
+        print("─" * LEBAR_TAMPILAN)
         
         pilihan = input("\nMasukkan pilihan menu (0-3): ").strip()
         
@@ -540,14 +541,14 @@ def menu_history_dan_estimasi(user_aktif, nim_aktif, database_akun):
     if not history_peminjaman:
         print("  Belum ada riwayat peminjaman masa lalu yang tercatat.")
     else:
-        print("─" * 60)
+        print("─" * LEBAR_TAMPILAN)
         for idx, item in enumerate(history_peminjaman, 1):
             denda_val = item.get('denda', 0)
             denda_str = f"Rp {denda_val:,}".replace(',', '.') if denda_val > 0 else "Rp 0"
             print(f" [{idx}] {item.get('judul_buku', '-')} ({item.get('kode_buku', '-')})")
             print(f"     📅 Pinjam : {item.get('tanggal_pinjam', '-')} | Kembali : {item.get('tanggal_kembali', '-')}")
             print(f"     ⏱️ Durasi : {item.get('durasi_aktual_hari', '-')} Hari | Status : {item.get('status', '-')} | Denda : {denda_str}")
-            print("─" * 60)
+            print("─" * LEBAR_TAMPILAN)
             
     input("\nTekan Enter untuk kembali ke Dashboard...")
 
@@ -583,7 +584,7 @@ def reading_habit_tracker(user_aktif, nim_aktif, database_akun):
     for target_hari, nama_badge in BADGE_STREAK:
         status = "✅ Tercapai" if streak_saat_ini >= target_hari else f"🔒 Butuh {target_hari} hari berturut-turut"
         print(f"  • {target_hari} Hari  : {nama_badge.ljust(25)} [{status}]")
-    print("─" * 60)
+    print("─" * LEBAR_TAMPILAN)
 
     print("\nPilihan Aksi:")
     print(" [1] ✅ Check-In Membaca Hari Ini (+1 Streak Harian)")
@@ -623,11 +624,11 @@ def reading_habit_tracker(user_aktif, nim_aktif, database_akun):
             print("\n  Belum ada buku yang selesai dibaca.")
         else:
             print(f"\n  Total Buku yang Pernah Dibaca: {len(riwayat_baca)} buku\n")
-            print("─" * 60)
+            print("─" * LEBAR_TAMPILAN)
             for idx, item in enumerate(riwayat_baca, 1):
                 print(f" [{idx}] {item.get('judul', '-')} ({item.get('kode', '-')})")
                 print(f"     ✅ Selesai Dikembalikan: {item.get('tanggal_kembali', '-')}")
-                print("─" * 60)
+                print("─" * LEBAR_TAMPILAN)
         input("\nTekan Enter untuk kembali...")
         
     elif pilihan == '3':
@@ -685,7 +686,7 @@ def main():
         print(" [5] 📜 Riwayat & Estimasi Baca -> Histori peminjaman & rekomendasi durasi")
         print(" [6] 🏆 Habit Tracker & Streak  -> Check-In harian (+1 Streak) & Badge")
         print(" [0] 🚪 Logout                  -> Keluar akun dengan aman")
-        print("─" * 60)
+        print("─" * LEBAR_TAMPILAN)
         
         pilihan = input("Pilih menu (0-6): ").strip()
         

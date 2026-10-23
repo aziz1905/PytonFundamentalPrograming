@@ -55,17 +55,19 @@ def minta_ulasan_buku(ulasan_buku, kode_buku, nim, nama, judul):
     print("✅ Ulasan Anda berhasil disimpan.")
 
 
-def tampilkan_ulasan_buku(kode_buku, ulasan_buku):
-    """Tampilkan nilai rata-rata serta komentar pembaca lain."""
+def format_ulasan_buku(kode_buku, ulasan_buku):
+    """Siapkan rating dan komentar pembaca dalam bentuk teks untuk UI."""
     daftar_ulasan = ulasan_buku.get(kode_buku, [])
     if not daftar_ulasan:
-        print("     ⭐ Ulasan    : Belum ada ulasan")
-        return
+        return ["⭐ Ulasan: Belum ada ulasan"]
 
     rata_rata = sum(item.get("rating", 0) for item in daftar_ulasan) / len(daftar_ulasan)
-    print(f"     ⭐ Rating   : {rata_rata:.1f}/5 ({len(daftar_ulasan)} ulasan)")
+    baris_ulasan = [
+        f"⭐ Rating: {rata_rata:.1f}/5 ({len(daftar_ulasan)} ulasan)"
+    ]
     for item in daftar_ulasan:
-        print(
-            f"     💬 {item.get('nama', 'Pembaca')} "
+        baris_ulasan.append(
+            f"💬 {item.get('nama', 'Pembaca')} "
             f"({item.get('rating', 0)}/5): {item.get('deskripsi', '')}"
         )
+    return baris_ulasan

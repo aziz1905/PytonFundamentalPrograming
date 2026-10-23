@@ -2,7 +2,7 @@ import datetime
 import time
 
 from database import muat_data, simpan_data, FILE_AKUN
-from ui import cetak_header, notifikasi, input_teks_valid
+from ui import LEBAR_TAMPILAN, cetak_header, notifikasi, input_teks_valid
 
 def menu_autentikasi():
     database_akun = muat_data(FILE_AKUN)
@@ -13,7 +13,7 @@ def menu_autentikasi():
         print("\n [1] 🔑 Login Pengunjung (NIM & Password)")
         print(" [2] 📝 Daftar Akun Baru (Registrasi)")
         print(" [0] 🔌 Matikan Kiosk (Keluar)")
-        print("─" * 60)
+        print("─" * LEBAR_TAMPILAN)
         
         pilihan = input("\nMasukkan pilihan menu (0-2): ").strip()
         
